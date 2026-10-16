@@ -17,3 +17,56 @@ create table login_codes (
     created_at timestamp default current_timestamp,
     index(email)
 );
+ALTER TABLE users
+ADD COLUMN password_hash VARCHAR(255) NULL;
+
+ALTER TABLE login_codes
+ADD COLUMN purpose ENUM('login', 'register')
+NOT NULL DEFAULT 'login',
+ADD COLUMN pending_name VARCHAR(100) NULL,
+ADD COLUMN pending_password_hash VARCHAR(255) NULL;
+
+
+SHOW DATABASES;
+USE clothing_shop;
+SHOW TABLES;
+
+CREATE DATABASE IF NOT EXISTS clothing_shop;
+USE clothing_shop;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NULL,
+    role ENUM('buyer', 'admin') DEFAULT 'buyer',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS login_codes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(150) NOT NULL,
+    code_hash CHAR(100) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    attempts INT DEFAULT 0,
+    used BOOLEAN DEFAULT FALSE,
+    purpose ENUM('login', 'register') NOT NULL DEFAULT 'login',
+    pending_name VARCHAR(100) NULL,
+    pending_password_hash VARCHAR(255) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX (email)
+);
+
+SHOW TABLES;
+
+
+SELECT DATABASE();
+
+SHOW TABLES FROM clothing_shop;
+
+SELECT * FROM clothing_shop.login_codes;
+SELECT DATABASE();
+
+SHOW TABLES FROM clothing_shop;
+
+SELECT * FROM clothing_shop.users;

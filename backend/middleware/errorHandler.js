@@ -1,4 +1,4 @@
-errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
     if (res.headersSent) {
         return next(err);
     }
@@ -10,5 +10,6 @@ errorHandler = (err, req, res, next) => {
     res.status(err.status || 500).json({
         error: err.status ? err.message : 'Server error'
     });
-}
+};
+
 module.exports = errorHandler;
