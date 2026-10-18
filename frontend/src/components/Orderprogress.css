@@ -1,0 +1,18 @@
+/* order er obostha: dhap gulo ar ekta lekha */
+.op { margin: 14px 0; text-align: left; }
+.op-now { padding: 10px 14px; border-radius: 6px; background: rgba(46, 160, 67, .15); color: #2ea043; font-size: 15px; line-height: 1.5; margin: 0 0 16px; }
+.op-now.bad { background: rgba(200, 50, 50, .15); color: #d94c4c; }
+
+.op-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.op-steps li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; font-size: 13px; color: var(--text); }
+.op-steps li::before { content: ''; position: absolute; top: 14px; left: -50%; width: 100%; height: 2px; background: var(--border); }
+.op-steps li:first-child::before { display: none; }
+.op-steps li.done::before, .op-steps li.now::before { background: #2ea043; }
+.op-steps li.done, .op-steps li.now { color: var(--text-h); }
+
+.op-dot { position: relative; z-index: 1; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--border); background: var(--bg); font-size: 13px; font-weight: 700; }
+.op-steps li.done .op-dot { background: #2ea043; border-color: #2ea043; color: #fff; }
+.op-steps li.now .op-dot { border-color: #c77d4c; color: #c77d4c; animation: op-pulse 1.4s ease-in-out infinite; }
+
+@keyframes op-pulse { 50% { box-shadow: 0 0 0 6px rgba(199, 125, 76, .25); } }
+@media (max-width: 480px) { .op-steps li { font-size: 12px; } }

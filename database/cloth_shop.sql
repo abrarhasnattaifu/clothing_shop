@@ -70,3 +70,10 @@ SELECT DATABASE();
 SHOW TABLES FROM clothing_shop;
 
 SELECT * FROM clothing_shop.users;
+UPDATE users SET role='admin' WHERE email='abrarhansattaifu@gmail.com';
+
+ALTER TABLE users MODIFY email VARCHAR(150) NOT NULL;
+ALTER TABLE users ADD UNIQUE (email);
+
+UPDATE users SET role = 'admin' WHERE email = 'abrarhansattaifu@gmail.com';
+SELECT email, role FROM users;
