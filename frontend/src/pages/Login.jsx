@@ -7,14 +7,11 @@ const API = 'http://localhost:5000/api/auth';
 const Login = ({ setUser }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [code, setCode] = useState('');
-
-    const [codeSent, setCodeSent] = useState(false);
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const sendCode = async (e) => {
+    const login = async (e) => {
         e.preventDefault();
         setLoading(true);
         setMessage('');
@@ -23,30 +20,6 @@ const Login = ({ setUser }) => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
-            });
-            const data = await response.json();
-            if (response.ok) {
-                setCodeSent(true);
-                setMessage(data.message);
-            } else {
-                setMessage(data.error || 'Something went wrong.');
-            }
-        } catch (error) {
-            setMessage('Cannot reach the server. Is the backend running?');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const verifyCode = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setMessage('');
-        try {
-            const response = await fetch(`${API}/verify`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, code, purpose: 'login' })
             });
             const data = await response.json();
             if (response.ok) {
@@ -74,13 +47,12 @@ const Login = ({ setUser }) => {
                     </svg>
                 </div>
                 <p className="auth-eyebrow">MAMACLOSET ACCOUNT</p>
-                <h1 className="auth-title" id="auth-title">{codeSent ? 'Verify your email' : 'Welcome back'}</h1>
+                <h1 className="auth-title" id="auth-title">Welcome back</h1>
                 <p className="auth-description">
-                    {codeSent ? 'Enter the 6-digit code we sent to finish signing in.' : 'Sign in to continue shopping and manage your orders.'}
+                    Sign in to continue shopping and manage your orders.
                 </p>
                 {message && <p className="auth-message" role="status">{message}</p>}
-                {!codeSent ? (
-                    <form className="auth-form" onSubmit={sendCode}>
+                <form className="auth-form" onSubmit={login}>
                     <input
                         type="email"
                         placeholder="Enter your email"
@@ -98,38 +70,9 @@ const Login = ({ setUser }) => {
                         required
                     />
                     <button className="auth-primary-button" type="submit" disabled={loading}>
-                        {loading ? 'Sending...' : 'Send Login Code'}
+                        {loading ? 'Signing in...' : 'Sign in'}
                     </button>
                 </form>
-            ) : (
-                <form className="auth-form" onSubmit={verifyCode}>
-                    <input
-                        type="text"
-                        placeholder="Enter the 6-digit code"
-                        aria-label="6-digit verification code"
-                        value={code}
-                        onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                        maxLength={6}
-                        pattern="[0-9]{6}"
-                        required
-                    />
-                    <button className="auth-primary-button" type="submit" disabled={loading}>
-                        {loading ? 'Verifying...' : 'Verify Code'}
-                    </button>
-                    <button
-                        className="auth-secondary-button"
-                        type="button"
-                        disabled={loading}
-                        onClick={() => {
-                            setCodeSent(false);
-                            setCode('');
-                            setMessage('');
-                        }}
-                    >
-                        Back
-                    </button>
-                </form>
-            )}
                 <p className="auth-switch">New to MamaCloset? <Link to="/register">Create an account</Link></p>
             </section>
         </main>

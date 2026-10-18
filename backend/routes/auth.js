@@ -98,8 +98,18 @@ router.post('/login', wrap(async (req, res) => {
         throw fail(400, 'Invalid email or password.');
     }
 
-    await sendCode(email, 'login');
-    res.json({ message: 'Verification code sent. Please check your email.' });
+    const [authenticatedUsers] = await db.query(
+        'SELECT id, name, email, role, profile_image FROM users WHERE id = ?',
+        [users[0].id]
+    );
+    const user = authenticatedUsers[0];
+    const token = jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+
+    res.json({ message: 'Login successful.', token, user });
 }));
 
 router.post('/verify', wrap(async (req, res) => {
@@ -107,7 +117,7 @@ router.post('/verify', wrap(async (req, res) => {
     const code = String(req.body.code || '').trim();
     const purpose = clean(req.body.purpose);
 
-    if (!isEmail(email) || !/^\d{6}$/.test(code) || !['login', 'register'].includes(purpose)) {
+    if (!isEmail(email) || !/^\d{6}$/.test(code) || purpose !== 'register') {
         throw fail(400, 'Enter a valid email and 6-digit code.');
     }
 
@@ -138,37 +148,25 @@ router.post('/verify', wrap(async (req, res) => {
         throw fail(400, 'Wrong code. Try again.');
     }
 
-    let user;
-    if (purpose === 'register') {
-        if (!row.pending_name || !row.pending_password_hash) {
-            throw fail(400, 'Invalid registration data.');
-        }
-        const [existing] = await db.query(
-            'SELECT id FROM users WHERE email = ?',
-            [email]
-        );
-        if (existing.length) {
-            throw fail(400, 'Email already registered.');
-        }
-        const [result] = await db.query(
-            'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)',
-            [row.pending_name, email, row.pending_password_hash]
-        );
-        const [users] = await db.query(
-            'SELECT id, name, email, role, profile_image FROM users WHERE id = ?',
-            [result.insertId]
-        );
-        user = users[0];
-    } else {
-        const [users] = await db.query(
-            'SELECT id, name, email, role, profile_image FROM users WHERE email = ?',
-            [email]
-        );
-        user = users[0];
-        if (!user) {
-            throw fail(404, 'User not found. Please register first.');
-        }
+    if (!row.pending_name || !row.pending_password_hash) {
+        throw fail(400, 'Invalid registration data.');
     }
+    const [existing] = await db.query(
+        'SELECT id FROM users WHERE email = ?',
+        [email]
+    );
+    if (existing.length) {
+        throw fail(400, 'Email already registered.');
+    }
+    const [result] = await db.query(
+        'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)',
+        [row.pending_name, email, row.pending_password_hash]
+    );
+    const [users] = await db.query(
+        'SELECT id, name, email, role, profile_image FROM users WHERE id = ?',
+        [result.insertId]
+    );
+    const user = users[0];
 
     await db.query('UPDATE login_codes SET used = TRUE WHERE id = ?', [row.id]);
 
@@ -179,7 +177,7 @@ router.post('/verify', wrap(async (req, res) => {
     );
 
     res.json({
-        message: purpose === 'register' ? 'Registration successful.' : 'Login successful.',
+        message: 'Registration successful.',
         token,
         user
     });
