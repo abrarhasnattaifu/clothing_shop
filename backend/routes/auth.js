@@ -30,8 +30,6 @@ const sendCode = async (email, purpose, pendingName = null, pendingPasswordHash 
     }
 
     const code = crypto.randomInt(100000, 1000000);
-
-    // FIX: result ta ekhane dhorte hobe, nahole niche result.insertId error dey
     const [result] = await db.query(
         `INSERT INTO login_codes
         (email, code_hash, expires_at, purpose, pending_name, pending_password_hash)
