@@ -1,4 +1,3 @@
--- Run once on an existing clothing_shop database after the buyer-notification schema is installed.
 USE clothing_shop;
 
 ALTER TABLE orders

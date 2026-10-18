@@ -86,7 +86,6 @@ const attachSizes = async (products, hold = false) => {
         [ids]
     );
 
-    // public pej e onner hold kora stock bad jabe, admin e asol stock
     let heldRows = [];
     if (hold) {
         [heldRows] = await db.query(
@@ -139,7 +138,6 @@ const attachSizes = async (products, hold = false) => {
         };
     });
 };
-// ---------- public routes ----------
  
 router.get('/', wrap(async (req, res) => {
     const [rows] = await db.query(
@@ -148,7 +146,6 @@ router.get('/', wrap(async (req, res) => {
     res.json({ products: await attachSizes(rows, true) });
 }));
  
-// FIX: frontend (adminProducts.jsx) /admin/all dake. hidden product o dekhate hobe, jate abar visible kora jay
 router.get('/admin/all', requireAuth, requireAdmin, wrap(async (req, res) => {
     const [rows] = await db.query('SELECT * FROM products ORDER BY id DESC');
     res.json({ products: await attachSizes(rows) });
@@ -168,7 +165,6 @@ router.get('/:id', wrap(async (req, res) => {
     res.json({ product });
 }));
  
-// ---------- admin routes ----------
 
 router.post('/', requireAuth, requireAdmin, upload, wrap(async (req, res) => {
     const files = req.files || {};

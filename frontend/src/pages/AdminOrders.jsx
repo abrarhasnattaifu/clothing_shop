@@ -28,7 +28,6 @@ function AdminOrders() {
                 setError(od.error || 'Could not load orders.');
             }
             if (n.ok) setNotes(nd.notifications);
-            // dekha hoye gele bell er number 0 hobe
             fetch(`${API}/api/orders/admin/notifications/read`, { method: 'POST', headers }).catch(() => {});
         } catch {
             setError('Cannot reach the server. Is the backend running?');

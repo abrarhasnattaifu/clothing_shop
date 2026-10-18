@@ -26,7 +26,6 @@ const inTx = async (fn) => {
     }
 };
 
-// ei size e wantedQty ta nite parbe ki na (onno-der hold bad diye) dekhe
 const checkAvailable = async (conn, userId, productId, color, size, wantedQty) => {
     const [p] = await conn.query('SELECT id FROM products WHERE id = ? AND is_active = TRUE', [productId]);
     if (!p.length) throw fail(404, 'Product not found.');
@@ -50,7 +49,6 @@ const checkAvailable = async (conn, userId, productId, color, size, wantedQty) =
     }
 };
 
-// cart dekha
 router.get('/', wrap(async (req, res) => {
     const [rows] = await db.query(
         `SELECT c.id, c.product_id, c.color, c.size, c.quantity,
@@ -79,7 +77,6 @@ router.get('/', wrap(async (req, res) => {
     });
 }));
 
-// cart e add (30 min hold shuru)
 router.post('/', wrap(async (req, res) => {
     const productId = Number(req.body.product_id);
     const color = String(req.body.color || '').trim();
@@ -117,7 +114,6 @@ router.post('/', wrap(async (req, res) => {
     res.status(201).json({ message: `Added. Reserved for you for ${HOLD_MINUTES} minutes.` });
 }));
 
-// quantity bodlano
 router.patch('/:id', wrap(async (req, res) => {
     const id = Number(req.params.id);
     const qty = Number(req.body.quantity);
@@ -136,7 +132,6 @@ router.patch('/:id', wrap(async (req, res) => {
     res.json({ message: 'Updated.' });
 }));
 
-// remove (hold sathe sathe chere dey)
 router.delete('/:id', wrap(async (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) throw fail(404, 'Item not found.');
@@ -144,7 +139,6 @@ router.delete('/:id', wrap(async (req, res) => {
     res.json({ message: 'Removed.' });
 }));
 
-// checkout e gele somoy abar 30 min (prottek item e shudhu ekbar)
 router.post('/checkout-start', wrap(async (req, res) => {
     await db.query(
         `UPDATE cart_items SET expires_at = NOW() + INTERVAL ? MINUTE, extended = TRUE

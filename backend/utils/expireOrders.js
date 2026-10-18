@@ -2,8 +2,6 @@ const db = require('../db');
 const { notifyBuyer } = require('./notify');
 const { HOLD_MIN } = require('./payConfig');
 
-// bKash/Rocket order e taka verify na hole HOLD_MIN minute por order batil kore stock ferot dey.
-// Admin ke kono notification pathay na.
 const expireUnpaidOrders = async () => {
     const [stale] = await db.query(
         `SELECT id, user_id, order_code FROM orders
@@ -17,7 +15,6 @@ const expireUnpaidOrders = async () => {
         try {
             await conn.beginTransaction();
 
-            // lock kore abar dekhi, ei majhe SMS eshe taka verify hoye gele ar batil korbo na
             const [rows] = await conn.query(
                 'SELECT payment_status, order_status FROM orders WHERE id = ? FOR UPDATE',
                 [o.id]

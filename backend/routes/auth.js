@@ -45,16 +45,13 @@ const sendCode = async (email, purpose, pendingName = null, pendingPasswordHash 
             text: `Your login code is: ${code}. It will expire in 10 minutes.`
         });
     } catch (error) {
-        // email na gele code ta muche dao, jate user sathe sathe abar chaite pare
         await db.query('DELETE FROM login_codes WHERE id = ?', [result.insertId]);
         console.error('Email send failed:', error.message);
         throw fail(500, 'Could not send the email. Please try again later.');
     }
 };
 
-// register route
 router.post('/register', wrap(async (req, res) => {
-    // FIX: name ke lowercase kora jabe na (clean() lowercase kore)
     const name = String(req.body.name || '').trim();
     const email = clean(req.body.email);
     const pass = String(req.body.password || '').trim();
@@ -74,13 +71,11 @@ router.post('/register', wrap(async (req, res) => {
         throw fail(400, 'Email already registered');
     }
 
-    // FIX: pass diye hash korte hobe. age clean(password) chilo, ta password ke lowercase kore dito
     const passwordHash = await bcrypt.hash(pass, 12);
     await sendCode(email, 'register', name, passwordHash);
     res.json({ message: 'Please check your email for the registration code.' });
 }));
 
-// login route
 router.post('/login', wrap(async (req, res) => {
     const email = clean(req.body.email);
     const password = String(req.body.password || '').trim();
@@ -107,7 +102,6 @@ router.post('/login', wrap(async (req, res) => {
     res.json({ message: 'Verification code sent. Please check your email.' });
 }));
 
-// verify code route
 router.post('/verify', wrap(async (req, res) => {
     const email = clean(req.body.email);
     const code = String(req.body.code || '').trim();
@@ -191,7 +185,6 @@ router.post('/verify', wrap(async (req, res) => {
     });
 }));
 
-// get logged-in user
 router.get('/me', wrap(async (req, res) => {
     const header = req.headers.authorization || '';
     const match = header.match(/^Bearer\s+(.+)$/i);

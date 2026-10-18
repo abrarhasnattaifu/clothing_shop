@@ -22,7 +22,7 @@ function AdminProducts() {
     const [form, setForm] = useState(emptyForm);
     const [colors, setColors] = useState([emptyColor()]);
     const [files, setFiles] = useState(emptyFiles);
-    const [fileKey, setFileKey] = useState(0); // submit er por file box khali korar jonno
+    const [fileKey, setFileKey] = useState(0);
     const [editingId, setEditingId] = useState(null);
     const [message, setMessage] = useState('');
     const [isError, setIsError] = useState(false);
@@ -37,7 +37,6 @@ function AdminProducts() {
             const data = await res.json();
             if (res.ok) setProducts(data.products);
         } catch {
-            // server na pele list khali thakbe
         }
     };
 
@@ -102,7 +101,6 @@ function AdminProducts() {
                 if (files[k]) body.append(k, files[k]);
             });
 
-            // FormData dile Content-Type nijei set hoy, nijer hate dewa jabe na
             const res = await fetch(
                 editingId ? `${API}/api/products/${editingId}` : `${API}/api/products`,
                 {

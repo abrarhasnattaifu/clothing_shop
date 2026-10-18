@@ -72,12 +72,10 @@ function ReturnRequest() {
         } finally {
             setLoading(false);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
     useEffect(() => {
         if (params.get('code')) lookup(params.get('code'));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const chosen = order?.items.find((i) => i.id === Number(form.item_id));

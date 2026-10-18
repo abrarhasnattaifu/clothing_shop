@@ -95,7 +95,6 @@ function Collections() {
                                     <span className="sp-badge">-{p.discount_percent}%</span>
                                 )}
                                 <img src={imgUrl(p.image_front)} alt={p.name} />
-                                {/* mouse nile pichoner chobi dekhay */}
                                 {p.image_back && (
                                     <img className="alt" src={imgUrl(p.image_back)} alt="" />
                                 )}

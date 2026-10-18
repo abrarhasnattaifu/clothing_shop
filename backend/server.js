@@ -15,7 +15,6 @@ const returnsRouter = require('./routes/returns');
 const conversationsRouter = require('./routes/conversations');
 const dashboardRouter = require('./routes/dashboard');
 const profileRouter = require('./routes/profile');
-// Middleware
 app.use(cors());
 app.use(express.json());
 

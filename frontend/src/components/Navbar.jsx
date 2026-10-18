@@ -13,8 +13,6 @@ function Navbar({ user, setUser }) {
     const [activityOpen, setActivityOpen] = useState(false);
     const activityRef = useRef(null);
 
-    // FIX: age ei duto line useEffect er NICHE chilo. useEffect er [isLoggedIn] age-i pora hoy,
-    // tai "Cannot access 'isLoggedIn' before initialization" error diye pura website blank hoye jeto.
     const isLoggedIn = !!user;
     const isAdmin = isLoggedIn && user.role === 'admin';
 

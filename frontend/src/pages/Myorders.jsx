@@ -16,10 +16,10 @@ function MyOrders() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    const [askId, setAskId] = useState(null); // kon order er cancel box khola
+    const [askId, setAskId] = useState(null);
     const [reason, setReason] = useState('');
     const [busy, setBusy] = useState(false);
-    const [notice, setNotice] = useState(null); // { text, error }
+    const [notice, setNotice] = useState(null);
     const [refundAskId, setRefundAskId] = useState(null);
     const [refundReason, setRefundReason] = useState('');
 

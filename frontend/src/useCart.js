@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { fetchCart } from './cart';
 
-// server er cart + prottek item er countdown (left = baki second)
 export default function useCart() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -36,7 +35,6 @@ export default function useCart() {
         left: Math.max(0, i.seconds_left - Math.floor((now - loadedAt) / 1000))
     }));
 
-    // somoy shesh hole server theke abar niye ashbe (ota expired item bad dibe)
     const anyEnded = withLeft.some((i) => i.left === 0);
     useEffect(() => {
         if (anyEnded) load();

@@ -16,7 +16,7 @@ const upload = multer({
             cb(null, crypto.randomBytes(16).toString('hex') + TYPES[file.mimetype]);
         }
     }),
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         if (!TYPES[file.mimetype]) {
             cb(fail(400, 'Invalid file type.'));

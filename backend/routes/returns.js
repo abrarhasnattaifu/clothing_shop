@@ -19,7 +19,6 @@ const makeCode = async (conn) => {
     throw fail(500, 'Could not create a request code. Try again.');
 };
 
-// delivered order er item gulo + koto ta ekhono return kora jabe
 const loadEligible = async (conn, code, userId, lock = false) => {
     const [orders] = await conn.query(
         `SELECT id, order_code, order_status, delivered_at,
@@ -49,7 +48,6 @@ const loadEligible = async (conn, code, userId, lock = false) => {
     return { order: o, items };
 };
 
-// ---------- customer: order code diye item dekha ----------
 router.get('/order/:code', requireAuth, wrap(async (req, res) => {
     const { order, items } = await loadEligible(db, req.params.code, req.user.id);
     const left = Math.max(0, Math.floor(RETURN_DAYS - order.hours / 24));
@@ -60,7 +58,6 @@ router.get('/order/:code', requireAuth, wrap(async (req, res) => {
     });
 }));
 
-// ---------- customer: request pathano ----------
 router.post('/', requireAuth, wrap(async (req, res) => {
     const b = req.body;
     const type = String(b.type || '');
@@ -123,7 +120,6 @@ router.post('/', requireAuth, wrap(async (req, res) => {
     res.status(201).json({ request_code: result.code, message: 'Request sent. We will check and contact you.' });
 }));
 
-// ---------- customer: nijer request list ----------
 router.get('/mine', requireAuth, wrap(async (req, res) => {
     const [rows] = await db.query(
         `SELECT r.request_code, r.type, r.quantity, r.problem, r.status, r.admin_note, r.created_at,
@@ -137,7 +133,6 @@ router.get('/mine', requireAuth, wrap(async (req, res) => {
     res.json({ requests: rows });
 }));
 
-// ---------- admin ----------
 router.get('/admin/all', requireAuth, requireAdmin, wrap(async (req, res) => {
     const [rows] = await db.query(
         `SELECT r.*, o.order_code, o.customer_name, o.phone, o.payment_method, o.payment_status,
@@ -175,7 +170,6 @@ router.patch('/admin/:id', requireAuth, requireAdmin, wrap(async (req, res) => {
 
         if (action === 'complete') {
             if (r.status !== 'approved') throw fail(400, 'Approve the request first.');
-            // ferot ashle shop e stock abar jog kora (admin chaile)
             if (restock) {
                 await conn.query(
                     `INSERT INTO product_sizes (product_id, color, size, stock) VALUES (?, ?, ?, ?)

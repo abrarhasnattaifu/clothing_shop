@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS orders (
   cancelled_from_status ENUM('pending','confirmed','shipped','delivered') NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_order_code (order_code),
-  UNIQUE KEY uq_order_trx (trx_id),          -- ek TrxID ek order e-i
+  UNIQUE KEY uq_order_trx (trx_id),
   INDEX idx_orders_user (user_id),
   INDEX idx_orders_pay (payment_status, order_status, created_at),
   FOREIGN KEY (user_id) REFERENCES users(id)

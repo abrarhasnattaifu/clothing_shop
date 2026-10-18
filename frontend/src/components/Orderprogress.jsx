@@ -7,7 +7,6 @@ const stepsFor = (method) => [
     'Delivered'
 ];
 
-// koyta dhap sesh hoyeche
 const DONE = { pending: 1, confirmed: 2, shipped: 3, delivered: 4 };
 
 const fmtHold = (min) =>
@@ -32,7 +31,6 @@ const describe = (o, holdMinutes) => {
         return 'This order was cancelled.';
     }
 
-    // customer cancel chaile (ekhono admin cancel kore ni)
     if (o.cancel_requested && (status === 'pending' || status === 'confirmed')) {
         return 'You asked to cancel this order. The shop will check it and cancel it soon. If you already paid, the shop will refund you manually.';
     }

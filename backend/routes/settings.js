@@ -5,7 +5,6 @@ const wrap = require('../middleware/wrap');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 const { fail, isEmail } = require('../utils/helpers');
 
-// key => max length
 const MAX = {
     shop_about: 300,
     phone: 20,
@@ -57,12 +56,10 @@ const normalize = (key, raw) => {
     return v;
 };
 
-// public: footer eta niye dekhay
 router.get('/', wrap(async (req, res) => {
     res.json({ settings: await readAll() });
 }));
 
-// admin: save
 router.put('/', requireAuth, requireAdmin, wrap(async (req, res) => {
     const entries = [];
     for (const key of Object.keys(MAX)) {

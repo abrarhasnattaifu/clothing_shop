@@ -31,7 +31,6 @@ function Checkout({ user }) {
             .catch(() => {});
     }, []);
 
-    // payment verify hoy nai thakle 10 second por por status dekhbe
     useEffect(() => {
         if (!done || done.order_status !== 'pending') return;
         const t = setInterval(async () => {
@@ -48,7 +47,6 @@ function Checkout({ user }) {
                     }));
                 }
             } catch {
-                // porer bar abar chesta korbe
             }
         }, 10000);
         return () => clearInterval(t);

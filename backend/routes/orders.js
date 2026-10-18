@@ -20,7 +20,6 @@ router.get('/payment-info', (req, res) => {
     });
 });
 
-// customer er nijer shob order, obostha shoho (My Orders page er jonno)
 router.get('/mine', requireAuth, wrap(async (req, res) => {
     const [orders] = await db.query(
         `SELECT id, order_code, total, payment_method, payment_status, order_status, trx_id,
@@ -102,7 +101,6 @@ const reserveStock = async (conn, orderId) => {
     }
 };
 
-// order lock kore kaj korar helper
 const changeOrder = async (id, fn) => {
     if (!Number.isInteger(id)) throw fail(404, 'Order not found.');
     const conn = await db.getConnection();
@@ -120,7 +118,6 @@ const changeOrder = async (id, fn) => {
     }
 };
 
-// ---------- customer: order dewa ----------
 router.post('/', requireAuth, wrap(async (req, res) => {
     const b = req.body;
     const name = String(b.name || '').trim();
@@ -129,7 +126,6 @@ router.post('/', requireAuth, wrap(async (req, res) => {
     const note = String(b.note || '').trim().slice(0, 300);
     const method = String(b.payment_method || '');
     const trxId = String(b.trx_id || '').trim().toUpperCase();
-    // customer jei number theke taka pathalo
     const payNumber = String(b.pay_number || '').replace(/[\s-]/g, '').replace(/^\+?88/, '');
 
     if (name.length < 2 || name.length > 100) throw fail(400, 'Enter your name.');
@@ -144,7 +140,6 @@ router.post('/', requireAuth, wrap(async (req, res) => {
     try {
         await conn.beginTransaction();
 
-        // item gulo ashbe server er cart (hold) theke
         const [cart] = await conn.query(
             'SELECT product_id, color, size, quantity FROM cart_items WHERE user_id = ? AND expires_at > NOW() FOR UPDATE',
             [req.user.id]
@@ -180,13 +175,12 @@ router.post('/', requireAuth, wrap(async (req, res) => {
         const code = await makeCode(conn);
 
         let payStatus = 'unpaid';
-        let orderStatus = 'confirmed'; // COD sathe sathe confirm
+        let orderStatus = 'confirmed';
 
         if (method !== 'cod') {
             payStatus = 'verifying';
             orderStatus = 'pending';
 
-            // taka admin nijer hate bKash/Rocket app e dekhe approve korbe (Admin > Orders > Approve payment)
         }
 
         const [r] = await conn.query(
@@ -206,7 +200,6 @@ router.post('/', requireAuth, wrap(async (req, res) => {
             [items.map((i) => [r.insertId, ...i])]
         );
 
-        // hold ta ekhon asol order e poriborton hoyeche, cart khali
         await conn.query('DELETE FROM cart_items WHERE user_id = ?', [req.user.id]);
 
         await conn.commit();
@@ -239,7 +232,6 @@ router.post('/', requireAuth, wrap(async (req, res) => {
     });
 }));
 
-// ---------- admin ----------
 router.get('/admin/all', requireAuth, requireAdmin, wrap(async (req, res) => {
     const [orders] = await db.query(
         `SELECT o.*, u.name AS account_name, u.email AS account_email
@@ -378,14 +370,12 @@ router.patch('/admin/:id/reinstate', requireAuth, requireAdmin, wrap(async (req,
     res.json({ message: 'Order restored.' });
 }));
 
-// admin nijer hate bKash/Rocket app dekhe payment approve/reject kore
 router.patch('/admin/:id/payment', requireAuth, requireAdmin, wrap(async (req, res) => {
     const action = String((req.body || {}).action || '');
     if (!['approve', 'reject'].includes(action)) throw fail(400, 'Invalid action.');
 
     let buyerNotice;
     await changeOrder(Number(req.params.id), async (conn, order) => {
-        // FIX: batil kora order e payment approve/reject korle stock duibar ferot jete pare
         if (order.order_status === 'cancelled') throw fail(400, 'This order is already cancelled.');
         if (order.payment_status !== 'verifying') throw fail(400, 'This payment is not waiting for review.');
         if (action === 'approve') {
@@ -412,7 +402,6 @@ router.patch('/admin/:id/payment', requireAuth, requireAdmin, wrap(async (req, r
     res.json({ message: action === 'approve' ? 'Payment approved.' : 'Payment rejected.' });
 }));
 
-// ---------- customer: nijer order er status ----------
 router.get('/code/:code', requireAuth, wrap(async (req, res) => {
     const [rows] = await db.query(
         `SELECT order_code, user_id, total, payment_method, payment_status, order_status
@@ -426,7 +415,6 @@ router.get('/code/:code', requireAuth, wrap(async (req, res) => {
     res.json({ order });
 }));
 
-// ---------- customer: cancel before shipment ----------
 router.post('/:id/cancel', requireAuth, wrap(async (req, res) => {
     const id = Number(req.params.id);
     const reason = String((req.body || {}).reason || '').trim().slice(0, 300);
@@ -477,7 +465,6 @@ router.post('/:id/cancel', requireAuth, wrap(async (req, res) => {
     });
 }));
 
-// Payment-verification cancellations still need shop review.
 router.post('/:id/cancel-request', requireAuth, wrap(async (req, res) => {
     const id = Number(req.params.id);
     const reason = String((req.body || {}).reason || '').trim().slice(0, 300);
@@ -498,7 +485,6 @@ router.post('/:id/cancel-request', requireAuth, wrap(async (req, res) => {
         info = { code: order.order_code, total: Number(order.total) };
     });
 
-    // admin ke jananor dorkar, nahole se jante parbe na
     notifyAdmin(
         `Cancel requested: order ${info.code} (৳${info.total}).${reason ? ' Reason: ' + reason : ''}`,
         id
@@ -541,7 +527,6 @@ router.post('/:id/refund-request', requireAuth, wrap(async (req, res) => {
     res.status(201).json({ message: 'Refund request sent. The shop will review it.' });
 }));
 
-// admin: cancel request thik na mone korle order jemon ache temon rakhe
 router.patch('/admin/:id/cancel-request', requireAuth, requireAdmin, wrap(async (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) throw fail(404, 'Order not found.');
@@ -560,7 +545,6 @@ router.patch('/admin/:id/cancel-request', requireAuth, requireAdmin, wrap(async 
     res.json({ message: 'Request dismissed. The order stays active.' });
 }));
 
-// admin: batil hoye jawa order e taka ferot dewa hoye gele "refunded" chinho dey
 router.patch('/admin/:id/refund', requireAuth, requireAdmin, wrap(async (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) throw fail(404, 'Order not found.');
