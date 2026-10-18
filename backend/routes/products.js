@@ -67,19 +67,32 @@ const readFields = (body) => {
  
     return { name, description, price, discount, sizes };
 };
-const attachSizes = async (products) => {
+const attachSizes = async (products, hold = false) => {
     if (!products.length) return [];
- 
+    const ids = products.map((p) => p.id);
+
     const [sizeRows] = await db.query(
         'SELECT product_id, size, stock FROM product_sizes WHERE product_id IN (?) ORDER BY id',
-        [products.map((p) => p.id)]
+        [ids]
     );
- 
+
+    // public pej e onner hold kora stock bad jabe, admin e asol stock
+    let heldRows = [];
+    if (hold) {
+        [heldRows] = await db.query(
+            `SELECT product_id, size, SUM(quantity) AS held FROM cart_items
+             WHERE expires_at > NOW() AND product_id IN (?) GROUP BY product_id, size`,
+            [ids]
+        );
+    }
+    const held = (pid, size) =>
+        Number(heldRows.find((h) => h.product_id === pid && h.size === size)?.held || 0);
+
     return products.map((p) => {
         const sizes = sizeRows
             .filter((s) => s.product_id === p.id)
-            .map((s) => ({ size: s.size, stock: s.stock }));
- 
+            .map((s) => ({ size: s.size, stock: Math.max(s.stock - held(p.id, s.size), 0) }));
+
         return {
             id: p.id,
             name: p.name,
@@ -97,17 +110,16 @@ const attachSizes = async (products) => {
         };
     });
 };
- 
 // ---------- public routes ----------
  
 router.get('/', wrap(async (req, res) => {
     const [rows] = await db.query(
         'SELECT * FROM products WHERE is_active = TRUE ORDER BY id DESC'
     );
-    res.json({ products: await attachSizes(rows) });
+    res.json({ products: await attachSizes(rows, true) });
 }));
  
-
+// FIX: frontend (adminProducts.jsx) /admin/all dake. hidden product o dekhate hobe, jate abar visible kora jay
 router.get('/admin/all', requireAuth, requireAdmin, wrap(async (req, res) => {
     const [rows] = await db.query('SELECT * FROM products ORDER BY id DESC');
     res.json({ products: await attachSizes(rows) });
@@ -123,7 +135,7 @@ router.get('/:id', wrap(async (req, res) => {
     );
     if (!rows.length) throw fail(404, 'Product not found.');
  
-    const [product] = await attachSizes(rows);
+    const [product] = await attachSizes(rows, true);
     res.json({ product });
 }));
  
