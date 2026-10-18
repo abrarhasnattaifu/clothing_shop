@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API } from '../config';
+import { API } from '@/config';
 
 function AdminBell() {
     const [unread, setUnread] = useState(0);

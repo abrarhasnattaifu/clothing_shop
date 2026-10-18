@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API, imgUrl, taka } from '../config';
-import './Shop.css';
+import { API, imgUrl, taka } from '@/config';
+import '@/pages/shop.css';
 
 const AUDIENCES = [
     { value: 'all', label: 'All Products' },

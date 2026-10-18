@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API } from '../config';
-import './shop.css';
+import { API } from '@/config';
+import '@/pages/shop.css';
 
 const CATEGORIES = [
     ['T-shirts', 'Everyday comfort for men and women.'],

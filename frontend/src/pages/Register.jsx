@@ -1,8 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import './Auth.css';
-
-const API = 'http://localhost:5000/api/auth';
+import { API } from '@/config';
+import '@/pages/Auth.css';
 
 const Register = ({ setUser }) => {
     const [name, setName] = useState('');
@@ -21,7 +20,7 @@ const Register = ({ setUser }) => {
         setLoading(true);
         setMessage('');
         try {
-            const response = await fetch(`${API}/register`, {
+            const response = await fetch(`${API}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password })
@@ -46,7 +45,7 @@ const Register = ({ setUser }) => {
         setLoading(true);
         setMessage('');
         try {
-            const response = await fetch(`${API}/verify`, {
+            const response = await fetch(`${API}/api/auth/verify`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, code, purpose: 'register' })

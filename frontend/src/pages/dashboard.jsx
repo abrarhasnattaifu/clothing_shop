@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API, imgUrl, taka } from '../config';
-import './dashboard.css';
+import { API, imgUrl, taka } from '@/config';
+import '@/pages/dashboard.css';
 
 const STATUS_LABELS = {
     pending: 'Pending',

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import AdminBell from './AdminBell';
-import BuyerBell from './BuyerBell';
-import './Navbar.css';
-import { fetchCart } from '../cart';
-import { API } from '../config';
+import AdminBell from '@/components/AdminBell';
+import BuyerBell from '@/components/BuyerBell';
+import '@/components/Navbar.css';
+import { fetchCart } from '@/cart';
+import { API } from '@/config';
 
 function Navbar({ user, setUser }) {
     const navigate = useNavigate();

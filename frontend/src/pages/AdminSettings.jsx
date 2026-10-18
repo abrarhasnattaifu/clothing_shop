@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { API } from '../config';
-import './Shop.css';
+import { API } from '@/config';
+import '@/pages/shop.css';
 
 const FIELDS = [
     ['shop_about', 'About the shop', 'Short text shown in the footer', 'textarea'],

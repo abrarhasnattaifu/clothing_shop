@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { fetchCart } from './cart';
+import { fetchCart } from '@/cart';
 
 export default function useCart() {
     const [items, setItems] = useState([]);

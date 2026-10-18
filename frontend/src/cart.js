@@ -1,4 +1,4 @@
-import { API } from './config';
+import { API } from '@/config';
 
 const call = async (path = '', method = 'GET', body) => {
     const res = await fetch(`${API}/api/cart${path}`, {

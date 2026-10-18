@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API } from '../config';
+import { API } from '@/config';
 
 function BuyerBell() {
     const [notifications, setNotifications] = useState([]);

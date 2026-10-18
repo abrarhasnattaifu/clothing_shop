@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { API } from '../config';
-import './shop.css';
+import { API } from '@/config';
+import '@/pages/shop.css';
 
 function Conversations({ admin = false }) {
     const token = localStorage.getItem('token');

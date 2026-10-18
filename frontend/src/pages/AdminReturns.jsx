@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { API, taka } from '../config';
-import './Shop.css';
+import { API, taka } from '@/config';
+import '@/pages/shop.css';
 
 const PROBLEMS = {
     wrong_size: 'Wrong size / does not fit',

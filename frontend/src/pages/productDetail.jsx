@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { API, imgUrl, taka } from '../config';
-import { addToCart, startCheckout } from '../cart';
-import './shop.css';
+import { API, imgUrl, taka } from '@/config';
+import { addToCart, startCheckout } from '@/cart';
+import '@/pages/shop.css';
 
 const readUserRole = () => {
     try {

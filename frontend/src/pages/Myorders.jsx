@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { API, taka } from '../config';
-import OrderProgress from '../components/Orderprogress';
-import './shop.css';
+import { API, taka } from '@/config';
+import OrderProgress from '@/components/Orderprogress';
+import '@/pages/shop.css';
 
 const METHOD = { cod: 'Cash on delivery', bkash: 'bKash', rocket: 'Rocket' };
 

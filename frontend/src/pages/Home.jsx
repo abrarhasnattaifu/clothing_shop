@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API, imgUrl, taka } from '../config';
-import './Home.css';
+import { API, imgUrl, taka } from '@/config';
+import '@/pages/Home.css';
 
 function ProductCard({ product }) {
     const stock = Number(product.total_stock);

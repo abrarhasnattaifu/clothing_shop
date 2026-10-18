@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { imgUrl, taka } from '../config';
-import { setQty, removeItem, startCheckout } from '../cart';
-import useCart from '../useCart';
-import './Shop.css';
+import { imgUrl, taka } from '@/config';
+import { setQty, removeItem, startCheckout } from '@/cart';
+import useCart from '@/useCart';
+import '@/pages/shop.css';
 
 const mmss = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 

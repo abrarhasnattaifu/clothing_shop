@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { API, imgUrl, taka } from '../config';
-import './Shop.css';
+import { API, imgUrl, taka } from '@/config';
+import '@/pages/shop.css';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const emptyForm = {

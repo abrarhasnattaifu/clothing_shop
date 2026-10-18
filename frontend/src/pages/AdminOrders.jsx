@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API, taka } from '../config';
-import './shop.css';
+import { API, taka } from '@/config';
+import '@/pages/shop.css';
 
 const STATUSES = ['confirmed', 'shipped', 'delivered', 'cancelled'];
 

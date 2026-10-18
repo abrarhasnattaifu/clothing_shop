@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API, imgUrl, taka } from '../config';
-import useCart from '../useCart';
-import OrderProgress from '../components/Orderprogress';
-import './Shop.css';
+import { API, imgUrl, taka } from '@/config';
+import useCart from '@/useCart';
+import OrderProgress from '@/components/Orderprogress';
+import '@/pages/shop.css';
 
 const mmss = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 

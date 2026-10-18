@@ -1,4 +1,4 @@
-import './Orderprogress.css';
+import '@/components/Orderprogress.css';
 
 const stepsFor = (method) => [
     'Order placed',

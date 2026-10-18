@@ -15,7 +15,11 @@ const returnsRouter = require('./routes/returns');
 const conversationsRouter = require('./routes/conversations');
 const dashboardRouter = require('./routes/dashboard');
 const profileRouter = require('./routes/profile');
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGIN || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+app.use(cors({ origin: allowedOrigins.length ? allowedOrigins : true }));
 app.use(express.json());
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

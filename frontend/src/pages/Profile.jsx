@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API } from '../config';
-import './Profile.css';
+import { API } from '@/config';
+import '@/pages/Profile.css';
 
 function Profile({ onProfileUpdated }) {
     const navigate = useNavigate();

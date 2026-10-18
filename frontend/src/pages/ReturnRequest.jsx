@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { API, taka } from '../config';
-import './Shop.css';
+import { API, taka } from '@/config';
+import '@/pages/shop.css';
 
 export const PROBLEMS = {
     wrong_size: 'Wrong size / does not fit',
