@@ -161,13 +161,13 @@ router.post('/verify', wrap(async (req, res) => {
             [row.pending_name, email, row.pending_password_hash]
         );
         const [users] = await db.query(
-            'SELECT id, name, email, role FROM users WHERE id = ?',
+            'SELECT id, name, email, role, profile_image FROM users WHERE id = ?',
             [result.insertId]
         );
         user = users[0];
     } else {
         const [users] = await db.query(
-            'SELECT id, name, email, role FROM users WHERE email = ?',
+            'SELECT id, name, email, role, profile_image FROM users WHERE email = ?',
             [email]
         );
         user = users[0];
@@ -208,7 +208,7 @@ router.get('/me', wrap(async (req, res) => {
     }
 
     const [users] = await db.query(
-        'SELECT id, name, email, role FROM users WHERE id = ?',
+        'SELECT id, name, email, role, profile_image FROM users WHERE id = ?',
         [payload.id]
     );
 

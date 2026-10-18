@@ -9,8 +9,12 @@ const app = express();
 const cartRouter = require('./routes/cart');
 const db = require('./db');
 const ordersRouter = require('./routes/orders');
-const paymentsRouter = require('./routes/payments');
 const { expireUnpaidOrders } = require('./utils/expireOrders');
+const settingsRouter = require('./routes/settings');
+const returnsRouter = require('./routes/returns');
+const conversationsRouter = require('./routes/conversations');
+const dashboardRouter = require('./routes/dashboard');
+const profileRouter = require('./routes/profile');
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -22,9 +26,14 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
+app.use('/api/returns', returnsRouter);
+app.use('/api/conversations', conversationsRouter);
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/profile', profileRouter);
+app.use('/api/settings', settingsRouter);
 app.use('/api/orders', ordersRouter);
-app.use('/api/payments', paymentsRouter);
 app.use('/api/cart', cartRouter);
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

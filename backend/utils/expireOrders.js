@@ -1,11 +1,12 @@
 const db = require('../db');
+const { notifyBuyer } = require('./notify');
 const { HOLD_MIN } = require('./payConfig');
 
 // bKash/Rocket order e taka verify na hole HOLD_MIN minute por order batil kore stock ferot dey.
 // Admin ke kono notification pathay na.
 const expireUnpaidOrders = async () => {
     const [stale] = await db.query(
-        `SELECT id, order_code FROM orders
+        `SELECT id, user_id, order_code FROM orders
          WHERE payment_status = 'verifying' AND order_status <> 'cancelled'
          AND created_at < NOW() - INTERVAL ? MINUTE`,
         [HOLD_MIN]
@@ -21,15 +22,17 @@ const expireUnpaidOrders = async () => {
                 'SELECT payment_status, order_status FROM orders WHERE id = ? FOR UPDATE',
                 [o.id]
             );
+            let expired = false;
             if (rows.length && rows[0].payment_status === 'verifying' && rows[0].order_status !== 'cancelled') {
                 const [items] = await conn.query(
-                    'SELECT product_id, size, quantity FROM order_items WHERE order_id = ?',
+                    'SELECT product_id, color, size, quantity FROM order_items WHERE order_id = ?',
                     [o.id]
                 );
                 for (const it of items) {
                     await conn.query(
-                        'UPDATE product_sizes SET stock = stock + ? WHERE product_id = ? AND size = ?',
-                        [it.quantity, it.product_id, it.size]
+                        `INSERT INTO product_sizes (product_id, color, size, stock) VALUES (?, ?, ?, ?)
+                         ON DUPLICATE KEY UPDATE stock = stock + VALUES(stock)`,
+                        [it.product_id, it.color, it.size, it.quantity]
                     );
                     await conn.query(
                         'UPDATE products SET sold_count = GREATEST(sold_count - ?, 0) WHERE id = ?',
@@ -40,8 +43,16 @@ const expireUnpaidOrders = async () => {
                     "UPDATE orders SET order_status = 'cancelled', payment_status = 'rejected' WHERE id = ?",
                     [o.id]
                 );
+                expired = true;
             }
             await conn.commit();
+            if (expired) {
+                notifyBuyer(
+                    o.user_id,
+                    `Order ${o.order_code} was cancelled because payment was not verified in time.`,
+                    o.id
+                ).catch((e) => console.error('Buyer notification failed:', e.message));
+            }
         } catch (err) {
             await conn.rollback();
             console.error(`Could not expire order ${o.order_code}:`, err.message);

@@ -27,25 +27,25 @@ const inTx = async (fn) => {
 };
 
 // ei size e wantedQty ta nite parbe ki na (onno-der hold bad diye) dekhe
-const checkAvailable = async (conn, userId, productId, size, wantedQty) => {
+const checkAvailable = async (conn, userId, productId, color, size, wantedQty) => {
     const [p] = await conn.query('SELECT id FROM products WHERE id = ? AND is_active = TRUE', [productId]);
     if (!p.length) throw fail(404, 'Product not found.');
 
     const [s] = await conn.query(
-        'SELECT stock FROM product_sizes WHERE product_id = ? AND size = ? FOR UPDATE',
-        [productId, size]
+        'SELECT stock FROM product_sizes WHERE product_id = ? AND color = ? AND size = ? FOR UPDATE',
+        [productId, color, size]
     );
-    if (!s.length) throw fail(400, 'This size is not available.');
+    if (!s.length) throw fail(400, 'This color and size combination is not available.');
 
     const [[h]] = await conn.query(
         `SELECT COALESCE(SUM(quantity), 0) AS held FROM cart_items
-         WHERE product_id = ? AND size = ? AND user_id <> ? AND expires_at > NOW()`,
-        [productId, size, userId]
+         WHERE product_id = ? AND color = ? AND size = ? AND user_id <> ? AND expires_at > NOW()`,
+        [productId, color, size, userId]
     );
     const available = s[0].stock - Number(h.held);
     if (wantedQty > available) {
         throw fail(400, available <= 0
-            ? 'Sorry, this size is sold out or reserved by someone else right now.'
+            ? 'Sorry, this color and size are sold out or reserved by someone else right now.'
             : `Only ${available} available right now.`);
     }
 };
@@ -53,11 +53,11 @@ const checkAvailable = async (conn, userId, productId, size, wantedQty) => {
 // cart dekha
 router.get('/', wrap(async (req, res) => {
     const [rows] = await db.query(
-        `SELECT c.id, c.product_id, c.size, c.quantity,
+        `SELECT c.id, c.product_id, c.color, c.size, c.quantity,
                 TIMESTAMPDIFF(SECOND, NOW(), c.expires_at) AS seconds_left,
                 p.name, p.price, p.discount_percent, p.image_front,
                 (SELECT stock FROM product_sizes ps
-                 WHERE ps.product_id = c.product_id AND ps.size = c.size) AS stock
+                 WHERE ps.product_id = c.product_id AND ps.color = c.color AND ps.size = c.size) AS stock
          FROM cart_items c JOIN products p ON p.id = c.product_id
          WHERE c.user_id = ? AND c.expires_at > NOW()
          ORDER BY c.id`,
@@ -68,6 +68,7 @@ router.get('/', wrap(async (req, res) => {
             id: r.id,
             product_id: r.product_id,
             name: r.name,
+            color: r.color,
             size: r.size,
             quantity: r.quantity,
             price: Math.round(Number(r.price) * (100 - r.discount_percent)) / 100,
@@ -81,10 +82,13 @@ router.get('/', wrap(async (req, res) => {
 // cart e add (30 min hold shuru)
 router.post('/', wrap(async (req, res) => {
     const productId = Number(req.body.product_id);
+    const color = String(req.body.color || '').trim();
     const size = String(req.body.size || '').toUpperCase();
     const qty = Number(req.body.quantity || 1);
 
-    if (!Number.isInteger(productId) || !SIZES.includes(size) || !Number.isInteger(qty) || qty < 1 || qty > MAX_QTY) {
+    if (!Number.isInteger(productId) || !color || color.length > 40
+        || /[\u0000-\u001f\u007f]/.test(color) || !SIZES.includes(size)
+        || !Number.isInteger(qty) || qty < 1 || qty > MAX_QTY) {
         throw fail(400, 'Invalid item.');
     }
 
@@ -92,21 +96,21 @@ router.post('/', wrap(async (req, res) => {
         await conn.query('DELETE FROM cart_items WHERE user_id = ? AND expires_at <= NOW()', [req.user.id]);
 
         const [ex] = await conn.query(
-            'SELECT id, quantity FROM cart_items WHERE user_id = ? AND product_id = ? AND size = ?',
-            [req.user.id, productId, size]
+            'SELECT id, quantity FROM cart_items WHERE user_id = ? AND product_id = ? AND color = ? AND size = ?',
+            [req.user.id, productId, color, size]
         );
         const total = (ex[0] ? ex[0].quantity : 0) + qty;
         if (total > MAX_QTY) throw fail(400, `You can buy at most ${MAX_QTY} of one item.`);
 
-        await checkAvailable(conn, req.user.id, productId, size, total);
+        await checkAvailable(conn, req.user.id, productId, color, size, total);
 
         if (ex.length) {
             await conn.query('UPDATE cart_items SET quantity = ? WHERE id = ?', [total, ex[0].id]);
         } else {
             await conn.query(
-                `INSERT INTO cart_items (user_id, product_id, size, quantity, expires_at)
-                 VALUES (?, ?, ?, ?, NOW() + INTERVAL ? MINUTE)`,
-                [req.user.id, productId, size, qty, HOLD_MINUTES]
+                `INSERT INTO cart_items (user_id, product_id, color, size, quantity, expires_at)
+                 VALUES (?, ?, ?, ?, ?, NOW() + INTERVAL ? MINUTE)`,
+                [req.user.id, productId, color, size, qty, HOLD_MINUTES]
             );
         }
     });
@@ -122,11 +126,11 @@ router.patch('/:id', wrap(async (req, res) => {
     }
     await inTx(async (conn) => {
         const [rows] = await conn.query(
-            'SELECT product_id, size FROM cart_items WHERE id = ? AND user_id = ? AND expires_at > NOW()',
+            'SELECT product_id, color, size FROM cart_items WHERE id = ? AND user_id = ? AND expires_at > NOW()',
             [id, req.user.id]
         );
         if (!rows.length) throw fail(404, 'Item not found or its reservation expired.');
-        await checkAvailable(conn, req.user.id, rows[0].product_id, rows[0].size, qty);
+        await checkAvailable(conn, req.user.id, rows[0].product_id, rows[0].color, rows[0].size, qty);
         await conn.query('UPDATE cart_items SET quantity = ? WHERE id = ?', [qty, id]);
     });
     res.json({ message: 'Updated.' });
