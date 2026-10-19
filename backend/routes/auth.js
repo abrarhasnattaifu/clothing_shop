@@ -4,19 +4,10 @@ const crypto = require('crypto');
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
 
 const wrap = require('../middleware/wrap');
 const { hash, clean, isEmail, fail } = require('../utils/helpers');
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    family: 4,
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASSWORD }
-});
+const sendEmail = require('../utils/sendEmail');
 
 const sendCode = async (email, purpose, pendingName = null, pendingPasswordHash = null) => {
     const [recent] = await db.query(
@@ -38,10 +29,9 @@ const sendCode = async (email, purpose, pendingName = null, pendingPasswordHash 
     );
 
     try {
-        await transporter.sendMail({
-            from: '"Clothing Shop" <' + process.env.EMAIL_USER + '>',
+        await sendEmail({
             to: email,
-            subject: 'Your Login Code',
+            subject: 'Your MamaCloset Registration Code',
             text: `Your login code is: ${code}. It will expire in 10 minutes.`
         });
     } catch (error) {
