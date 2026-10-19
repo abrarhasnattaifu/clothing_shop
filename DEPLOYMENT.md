@@ -7,7 +7,7 @@ This setup is for a temporary demo only. Do not use it for real customer details
 - A free static frontend host, such as Render Static Sites.
 - A free Node.js web-service host, such as Render free web services.
 - A separate MySQL-compatible database provider. Render's free database is PostgreSQL, which this project does not support.
-- An email provider with an HTTPS API. Render free web services block outbound SMTP, so use Resend for registration verification and admin email notifications.
+- An email provider with an HTTPS API for optional admin email notifications. Registration does not send verification codes.
 
 The application uses Vite's `@/` alias for frontend source imports. These imports resolve from `frontend/src` and do not depend on the local Windows folder or the server's filesystem layout.
 
@@ -38,8 +38,8 @@ Configure the service environment variables using `backend/.env.example` as a re
 - `DB_SSL=true` when required by the database provider; otherwise `false`
 - `JWT_SECRET` as a new, long, random secret
 - `CORS_ORIGIN` as the exact deployed frontend origin, with no trailing slash
-- `RESEND_API_KEY` from Resend
-- `EMAIL_FROM` as an address allowed by the Resend account; `MamaCloset <onboarding@resend.dev>` is for testing to the account owner's verified address only
+- `RESEND_API_KEY` from Resend, if admin email notifications are enabled
+- `EMAIL_FROM` as an address allowed by the Resend account, if admin email notifications are enabled
 - `ADMIN_EMAIL` for order and admin email notifications
 
 The host supplies `PORT`; do not hard-code a public port. Set `CORS_ORIGIN` to the static site's assigned URL once it is available.
@@ -62,7 +62,8 @@ Configure a rewrite for single-page app routes in the static host dashboard: `/*
 - The free backend may sleep after inactivity, making the first request slow while it wakes up.
 - Its local filesystem is temporary. Product and profile images stored under `backend/uploads` can disappear after restart, redeploy, or sleep. Do not rely on locally uploaded images surviving.
 - Keep the demo database separate from any real shop database, and use only dummy accounts, products, and orders.
-- Resend's unverified test sender can only deliver to the account owner's verified address. For verification emails to other test users, verify a sender domain with Resend and configure `EMAIL_FROM`.
+- Registration creates the account immediately and signs the user in; it does not verify ownership of the supplied email address.
+- Resend's unverified test sender can only deliver to the account owner's verified address. To send admin notifications to other recipients, verify a sender domain with Resend and configure `EMAIL_FROM`.
 - Test order and payment flows with fake data only. Do not collect real payment credentials or claim real payment processing.
 
 ## Secrets and local deployment

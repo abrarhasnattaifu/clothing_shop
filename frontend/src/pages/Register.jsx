@@ -7,15 +7,13 @@ const Register = ({ setUser }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [code, setCode] = useState('');
 
-    const [codeSent, setCodeSent] = useState(false);
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
-   const navigate = useNavigate();
+    const navigate = useNavigate();
 
-    const sendCode = async (e) => {
+    const register = async (e) => {
         e.preventDefault();
         setLoading(true);
         setMessage('');
@@ -26,31 +24,6 @@ const Register = ({ setUser }) => {
                 body: JSON.stringify({ name, email, password })
             });
             const data = await response.json();
-            
-            if (response.ok) {
-                setCodeSent(true);
-                setMessage(data.message);
-            } else {
-                setMessage(data.error || 'Something went wrong.');
-            }
-        } catch (error) {
-            setMessage('Cannot reach the server. Is the backend running?');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const verifyCode = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setMessage('');
-        try {
-            const response = await fetch(`${API}/api/auth/verify`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, code, purpose: 'register' })
-            });
-            const data = await response.json();
             if (response.ok) {
                 localStorage.setItem('user', JSON.stringify(data.user));
                 localStorage.setItem('token', data.token);
@@ -59,7 +32,7 @@ const Register = ({ setUser }) => {
             } else {
                 setMessage(data.error || 'Something went wrong.');
             }
-        } catch (error) {
+        } catch {
             setMessage('Cannot reach the server. Is the backend running?');
         } finally {
             setLoading(false);
@@ -77,13 +50,12 @@ const Register = ({ setUser }) => {
                     </svg>
                 </div>
                 <p className="auth-eyebrow">JOIN MAMACLOSET</p>
-                <h1 className="auth-title" id="auth-title">{codeSent ? 'Verify your email' : 'Create your account'}</h1>
+                <h1 className="auth-title" id="auth-title">Create your account</h1>
                 <p className="auth-description">
-                    {codeSent ? 'Enter the 6-digit code we sent to verify your email address.' : 'A few details and you will be ready to find your next favorite look.'}
+                    A few details and you will be ready to find your next favorite look.
                 </p>
                 {message && <p className="auth-message" role="status">{message}</p>}
-                {!codeSent ? (
-                <form className="auth-form" onSubmit={sendCode}>
+                <form className="auth-form" onSubmit={register}>
                     <input
                         type="text"
                         placeholder="Name"
@@ -110,38 +82,9 @@ const Register = ({ setUser }) => {
                         required
                     />
                     <button className="auth-primary-button" type="submit" disabled={loading}>
-                        {loading ? 'Sending...' : 'Send Registration Code'}
+                        {loading ? 'Creating account...' : 'Create Account'}
                     </button>
                 </form>
-            ) : (
-                <form className="auth-form" onSubmit={verifyCode}>
-                    <input
-                        type="text"
-                        placeholder="Enter the 6-digit code"
-                        aria-label="6-digit verification code"
-                        value={code}
-                        onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                        maxLength={6}
-                        pattern="[0-9]{6}"
-                        required
-                    />
-                    <button className="auth-primary-button" type="submit" disabled={loading}>
-                        {loading ? 'Verifying...' : 'Verify Code'}
-                    </button>
-                    <button
-                        className="auth-secondary-button"
-                        type="button"
-                        disabled={loading}
-                        onClick={() => {
-                            setCodeSent(false);
-                            setCode('');
-                            setMessage('');
-                        }}
-                    >
-                        Back
-                    </button>
-                </form>
-            )}
                 <p className="auth-switch">Already have an account? <Link to="/login">Sign in</Link></p>
             </section>
         </main>
